@@ -115,6 +115,16 @@ class Mount
     {
         $name = static::normalizeName($name);
 
+        if (func_num_args() > 1) {
+            $params = func_get_args();
+            array_shift($params);
+            $nameCheck = $name . ':' . md5(serialize($params));
+
+            if (isset($this->instances[$nameCheck])) {
+                return $this->instances[$nameCheck];
+            }
+        }
+
         if (isset($this->instances[$name])) {
             return $this->instances[$name];
         }
@@ -125,12 +135,19 @@ class Mount
 
         $factory = $this->factories[$name];
         $instance = null;
-
         if (is_string($factory) && class_exists($factory, true)) {
             $instance = new $factory;
         } elseif (is_callable($factory)) {
             try {
-                $instance = $factory($this);
+                if (func_num_args() > 1) {
+                    $params = func_get_args();
+                    array_shift($params);
+                    $name = $name . ':' . md5(serialize($params));
+                    $instance = call_user_func_array($factory, $params);
+                } else {
+                    $instance = $factory($this);
+                }
+
             } catch (\Exception $e) {
                 throw new Exception\RuntimeException(
                     sprintf('An exception was raised while creating "%s"', $name), $e->getCode(), $e
