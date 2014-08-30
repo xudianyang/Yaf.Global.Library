@@ -9,7 +9,7 @@ class File implements StorageInterface
     public function __construct($options)
     {
         if (!empty($options['basePath'])) {
-            $this->_basePath = $options['basePath'];
+            $this->_basePath = rtrim($options['basePath'], '/') . '/';
         }
     }
 
@@ -22,13 +22,28 @@ class File implements StorageInterface
     }
 
     public function read($filename) {
-        return file_get_contents($filename);
+        if ($filename[0] != '/') {
+            $filename = $this->_basePath . $filename;
+        }
+
+        $options = array(
+            'http'=>array(
+                'method'    => 'GET',
+                'timeout'   => 60,
+            )
+        );
+
+        $context = stream_context_create($options);
+        return file_get_contents($filename, false, $context);
     }
 
     public function write($filename, $content) {
         if ($filename[0] != '/') {
             $filename = $this->_basePath . $filename;
         }
+
+        $dir = dirname($filename);
+        $this->mkdir($dir);
 
         if (file_put_contents($filename, $content)) {
             return true;
@@ -48,5 +63,18 @@ class File implements StorageInterface
     public function setBasePath($path) {
         $this->_basePath = rtrim($path, '/') . '/';
         return $this;
+    }
+
+    public function mkdir($structure, $mode = 0755)
+    {
+        if (is_dir($structure) || $structure == '') {
+            return true;
+        }
+
+        if (self::mkdir(dirname($structure), $mode)) {
+            return @mkdir($structure, $mode);
+        } else {
+            throw new RuntimeException(sprintf('File::mkdir can not mkdir %s', $structure));
+        }
     }
 }

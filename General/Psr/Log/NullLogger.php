@@ -12,6 +12,11 @@ namespace General\Psr\Log;
  */
 class NullLogger extends AbstractLogger
 {
+    public function setLogger($module)
+    {
+        // noop
+        return $this;
+    }
     /**
      * Logs with an arbitrary level.
      *

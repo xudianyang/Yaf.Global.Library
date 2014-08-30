@@ -19,8 +19,8 @@ class Qiniu implements StorageInterface
         global $QINIU_ACCESS_KEY;
         global $QINIU_SECRET_KEY;
 
-        if (empty($option['accessKey']) || empty($option['secretKey'])) {
-            throw new RuntimeException("Qiniu AccessKey or SecretKey not Set");
+        if (empty($option['accessKey']) || empty($option['secretKey']) || empty($option['bucket'])) {
+            throw new RuntimeException("Qiniu AccessKey or SecretKey or Bucket Not Set");
         }
 
         $QINIU_ACCESS_KEY = $option['accessKey'];
@@ -28,6 +28,7 @@ class Qiniu implements StorageInterface
 
         $this->accessKey = $QINIU_ACCESS_KEY;
         $this->secretKey = $QINIU_SECRET_KEY;
+        $this->bucket    = $option['bucket'];
 
         $this->domains = $option['domains'];
     }
@@ -130,19 +131,17 @@ class Qiniu implements StorageInterface
 
     public function setBucketAndKey($filename)
     {
-        $filename = explode(":", $filename);
-        if (count($filename) != 2) return false;
-
-        if (!isset($this->domains[$filename[0]])) {
-            throw new RuntimeException("Qiniu Bucket Not Config，Check it APP_NAME.ini");
+        $filename = explode(":", $filename, 2);
+        if (count($filename) == 2) {
+            $this->bucket = $filename[0];
+            $this->key    = $filename[1];
+        } else {
+            $this->key = $filename[0];
         }
-
-        $this->bucket = $filename[0];
-        $this->key    = $filename[1];
     }
 
-    public function getDomain($domain = 'default')
+    public function getDomain($index = 0)
     {
-        return $this->domains[$this->bucket]['default'];
+        return $this->domains[$index];
     }
 }
