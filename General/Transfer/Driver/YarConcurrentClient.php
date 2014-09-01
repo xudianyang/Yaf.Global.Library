@@ -44,20 +44,35 @@ class YarConcurrentClient extends AbstractDriver
     public $params = array();
 
     /**
+     * 接口密钥
+     *
+     * @var string
+     */
+    protected $_secret;
+
+    /**
+     * 接口密钥有效时间，单位秒
+     *
+     * @var int
+     */
+    protected $_expire;
+
+    /**
+     * 允许请求的接口列表
+     *
+     * @var array
+     */
+    protected $_allows;
+
+    /**
      * 构造方法
      *
      * @param string | null $package
      * @param string | null $entry
      */
-    public function __construct($package = null, $entry = null)
+    public function __construct($options = null)
     {
-        if (!empty($package)) {
-            $this->_package = $package;
-        }
-
-        if (!empty($entry)) {
-            $this->_entry = $entry;
-        }
+        parent::__construct($options);
     }
 
     /**
@@ -68,7 +83,7 @@ class YarConcurrentClient extends AbstractDriver
     protected function getRouterUrl()
     {
         // 判断远程调用列表，返回URL
-        $allows = Application::app()->getConfig()->application->yar->allows;
+        $allows = $this->_allows;
         $names =  explode(',',$allows['name']);
         $urls = explode(',', $allows['url']);
 
@@ -197,6 +212,28 @@ class YarConcurrentClient extends AbstractDriver
     }
 
     /**
+     * 设置打包协议
+     *
+     * @param string $package
+     * @return void
+     */
+    public function setPackage($package)
+    {
+        $this->_package = $package;
+    }
+
+    /**
+     * 设置请求的实体
+     *
+     * @param string $entry
+     * @return void
+     */
+    public function setEntry($entry)
+    {
+        $this->_entry = $entry;
+    }
+
+    /**
      * 获取Token
      *
      * @return string
@@ -204,11 +241,37 @@ class YarConcurrentClient extends AbstractDriver
     public function getToken()
     {
         $aes = new AES();
-
-        $appConfig = Application::app()->getConfig();
-        $aes->setKey($appConfig->application->yar->secret);
-        $token = base64_encode($aes->encrypt(time() + $appConfig->application->yar->token_expire));
+        $aes->setKey($this->_secret);
+        $token = base64_encode($aes->encrypt(time() + $this->_expire));
 
         return $token;
+    }
+
+    /**
+     * 设置secret
+     *
+     * @param string $secret
+     */
+    public function setSecret($secret)
+    {
+        $this->_secret = $secret;
+    }
+
+    /**
+     * 设置过期时间expire
+     *
+     * @param int $expire
+     */
+    public function setExpire($expire)
+    {
+        $this->_expire = $expire;
+    }
+
+    /**
+     * 设置允许请求的接口列表
+     */
+    public function setAllows($allows)
+    {
+        $this->_allows = $allows;
     }
 }

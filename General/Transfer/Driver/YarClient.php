@@ -7,7 +7,6 @@
 
 namespace General\Transfer\Driver;
 
-use Yaf\Application;
 use Yar_Client;
 use General\Crypt\AES;
 use General\Transfer\Exception;
@@ -36,6 +35,27 @@ class YarClient extends AbstractDriver
      */
     protected $_entry = 'api.php';
 
+    /**
+     * 接口密钥
+     *
+     * @var string
+     */
+    protected $_secret;
+
+    /**
+     * 接口密钥有效时间，单位秒
+     *
+     * @var int
+     */
+    protected $_expire;
+
+    /**
+     * 允许请求的接口列表
+     *
+     * @var array
+     */
+    protected $_allows;
+
     public function __construct($options = null)
     {
         parent::__construct($options);
@@ -49,7 +69,7 @@ class YarClient extends AbstractDriver
     protected function init()
     {
         // 判断远程调用列表，返回URL
-        $allows = Application::app()->getConfig()->application->yar->allows;
+        $allows = $this->_allows;
         $names =  explode(',',$allows['name']);
         $urls = explode(',', $allows['url']);
 
@@ -111,11 +131,37 @@ class YarClient extends AbstractDriver
     public function getToken()
     {
         $aes = new AES();
-
-        $appConfig = Application::app()->getConfig();
-        $aes->setKey($appConfig->application->yar->secret);
-        $token = base64_encode($aes->encrypt(time() + $appConfig->application->yar->token_expire));
+        $aes->setKey($this->_secret);
+        $token = base64_encode($aes->encrypt(time() + $this->_expire));
 
         return $token;
+    }
+
+    /**
+     * 设置secret
+     *
+     * @param string $secret
+     */
+    public function setSecret($secret)
+    {
+        $this->_secret = $secret;
+    }
+
+    /**
+     * 设置过期时间expire
+     *
+     * @param int $expire
+     */
+    public function setExpire($expire)
+    {
+        $this->_expire = $expire;
+    }
+
+    /**
+     * 设置允许请求的接口列表
+     */
+    public function setAllows($allows)
+    {
+        $this->_allows = $allows;
     }
 }

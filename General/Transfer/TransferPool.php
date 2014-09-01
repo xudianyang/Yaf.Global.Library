@@ -27,7 +27,7 @@ abstract class TransferPool
      * @return Driver\DriverInterface|null
      * @throws Exception\RuntimeException
      */
-    public static function factory($driver = self::DEFAULT_DRIVER)
+    public static function factory($config = array(), $driver = self::DEFAULT_DRIVER)
     {
         if (!isset($driver)) {
             $driver = self::DEFAULT_DRIVER;
@@ -46,7 +46,7 @@ abstract class TransferPool
                 throw new Exception\RuntimeException("Driver '$driverName' is not implements StorageInterface");
             }
 
-            $instance = new $driverName;
+            $instance = new $driverName($config);
             self::register($instance, $driverName);
         }
 
