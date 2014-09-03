@@ -15,6 +15,8 @@ class RowLoader
 
     const NS_ROOT = '\\';
 
+    protected $normalizeNameHandler = null;
+
     protected $paths = array();
 
     /**
@@ -47,6 +49,17 @@ class RowLoader
     }
 
     /**
+     * register name handler
+     *
+     * @param callable $handler
+     * @return $this
+     */
+    public function registerNormalizeNameHandler(callable $handler)
+    {
+        $this->normalizeNameHandler = $handler;
+        return $this;
+    }
+    /**
      * Get Row instance
      *
      * @param string $name
@@ -54,7 +67,12 @@ class RowLoader
      */
     public function get($name)
     {
-        $name = static::normalizeName($name);
+        if (is_callable($this->normalizeNameHandler)) {
+            $nameHandler = $this->normalizeNameHandler;
+            $name = $nameHandler($name);
+        } else {
+            $name = static::normalizeName($name);
+        }
 
         if (!($class = $this->getClassFromPath($name))) {
             return null;
