@@ -22,7 +22,7 @@ class File implements StorageInterface
     }
 
     public function read($filename) {
-        if ((strpos($filename, 'http://') === false || strpos($filename, 'https://') === false) &&
+        if ((strpos($filename, 'http://') === false && strpos($filename, 'https://') === false) &&
             $filename[0] != '/') {
             $filename = $this->_basePath . $filename;
         }
