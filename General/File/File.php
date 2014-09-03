@@ -22,7 +22,8 @@ class File implements StorageInterface
     }
 
     public function read($filename) {
-        if ($filename[0] != '/') {
+        if ((strpos($filename, 'http://') === false || strpos($filename, 'https://') === false) &&
+            $filename[0] != '/') {
             $filename = $this->_basePath . $filename;
         }
 
@@ -38,11 +39,9 @@ class File implements StorageInterface
     }
 
     public function write($filename, $content) {
-        if ((strpos($filename, 'http://') === false && strpos($filename, 'https://') === false) &&
-            $filename[0] != '/') {
+        if ($filename[0] != '/') {
             $filename = $this->_basePath . $filename;
         }
-
 
         $dir = dirname($filename);
         $this->mkdir($dir);
