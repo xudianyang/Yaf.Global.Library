@@ -38,9 +38,11 @@ class File implements StorageInterface
     }
 
     public function write($filename, $content) {
-        if ($filename[0] != '/') {
+        if ((strpos($filename, 'http://') === false && strpos($filename, 'https://') === false) &&
+            $filename[0] != '/') {
             $filename = $this->_basePath . $filename;
         }
+
 
         $dir = dirname($filename);
         $this->mkdir($dir);
