@@ -213,7 +213,12 @@ abstract class AbstractTable implements TableInterface
             $counter = clone $select;
             $counter->reset(Select::COLUMNS)->reset(Select::ORDER)
                 ->reset(Select::LIMIT)->reset(Select::OFFSET);
-            $counter->columns('COUNT(*) as total');
+            if (strtoupper($select->getRawState($select::QUANTIFIER)) == Select::QUANTIFIER_DISTINCT) {
+                $columns = $select->getRawState(Select::COLUMNS);
+                $counter->columns("COUNT({$select->getRawState(Select::QUANTIFIER)} {$columns[0]}) as total");
+            } else {
+                $counter->columns('COUNT(*) as total');
+            }
             $row = $this->sql->prepareStatement($counter)->execute()->current();
             $pagination->setRecordCount($row['total']);
 
