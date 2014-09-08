@@ -75,7 +75,7 @@ class Connection
      */
     public function dispatchCommand($command)
     {
-        $socket = $this->_getSocket();
+        $socket = $this->getSocket();
 
         $to_send = $command->getCommandLine().self::CRLF;
 
@@ -106,6 +106,7 @@ class Connection
             $data = $socket->read($dataLength);
 
             $crlf = $socket->read(self::CRLF_LENGTH);
+
             if ($crlf !== self::CRLF) {
                 throw new Exception\ClientException(sprintf(
                     'Expected %u bytes of CRLF after %u bytes of data',
@@ -160,7 +161,7 @@ class Connection
      * @return Socket
      * @throws Exception\ConnectionException
      */
-    private function _getSocket()
+    public function getSocket()
     {
         if (!isset($this->_socket)) {
             $this->_socket = new NativeSocket(
@@ -181,7 +182,7 @@ class Connection
     public function isServiceListening()
     {
         try {
-            $this->_getSocket();
+            $this->getSocket();
 
             return true;
         } catch (Exception\ConnectionException $e) {

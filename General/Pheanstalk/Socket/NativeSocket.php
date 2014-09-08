@@ -86,7 +86,7 @@ class NativeSocket implements Socket
             $parts []= $data;
         }
 
-        return implode($parts);
+        return implode('', $parts);
     }
 
     /* (non-phpdoc)
@@ -116,5 +116,10 @@ class NativeSocket implements Socket
     private function _wrapper()
     {
         return StreamFunctions::instance();
+    }
+
+    public function close()
+    {
+        fclose($this->_socket);
     }
 }

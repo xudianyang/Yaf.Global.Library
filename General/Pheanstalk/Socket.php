@@ -33,4 +33,11 @@ interface Socket
      * @param int
      */
     public function getLine($length = null);
+
+    /**
+     * close connect
+     *
+     * @return void
+     */
+    public function close();
 }
