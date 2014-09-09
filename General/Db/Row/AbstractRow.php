@@ -347,7 +347,7 @@ abstract class AbstractRow implements ArrayAccess, IteratorAggregate, Countable,
                 // make primary key data available so that $where can be complete
                 $this->processPrimaryKeyData();
             }
-            $rowsAffected = $result->getAffectedRows();
+            $rowsAffected = $primaryKeyValue;
             unset($statement, $result); // cleanup
         }
 
