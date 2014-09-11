@@ -149,8 +149,14 @@ abstract class AbstractSql implements SqlInterface
                             'A number of parameters (' . $ppCount .
                                 ') was found that is not supported by this specification');
                     }
+
+                    if (!is_array($multiParamsForPosition)) {
+                        $multiParamsForPosition = array($multiParamsForPosition);
+                    }
+
                     $multiParamValues[] = vsprintf($paramSpecs[$position][$ppCount], $multiParamsForPosition);
                 }
+
                 $topParameters[] = implode($paramSpecs[$position]['combinedby'], $multiParamValues);
             } elseif ($paramSpecs[$position] !== null) {
                 $ppCount = count($paramsForPosition);
