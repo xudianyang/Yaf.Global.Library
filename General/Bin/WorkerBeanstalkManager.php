@@ -1,8 +1,6 @@
 <?php
+namespace General\Bin;
 declare(ticks = 1);
-
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'WorkerManager.php';
-
 use General\Pheanstalk\Pheanstalk;
 
 class WorkerBeanstalkManager extends WorkerManager {
@@ -74,20 +72,17 @@ class WorkerBeanstalkManager extends WorkerManager {
 
         $h = $job->getId();
 
-        if (empty($w['function'])) {
-            $this->log("Function is empty, Id ($h) Deleted");
-            $thisWorker->delete($job);
-            return;
-        }
+        $statsJob = $thisWorker->statsJob($job);
+        $func = $statsJob['tube'];
 
         if (empty($w['payload'])) {
-            $funcName = $w['function'];
+            $funcName = $func;
             $this->log("Function {$funcName}'s Payload is empty, Id ($h) Deleted");
             $thisWorker->delete($job);
             return;
         }
 
-        $job_name = $w['function'];
+        $job_name = $func;
 
         if($this->prefix){
             $func = $this->prefix.$job_name;
@@ -181,30 +176,38 @@ class WorkerBeanstalkManager extends WorkerManager {
         $this->job_execution_count++;
 
         if (!isset($w['command'])) {
+            $this->log("Finish Job, Id ($h) Deleted");
             $thisWorker->delete($job);
         } else if (in_array($w['command'], array('bury', 'release', 'delete'))) {
             switch ($w['command']) {
                 case 'bury':
                     if (isset($w['args']) && count($w['args']) >= 1) {
+                        $this->log("Finish Job, Id ($h) buried pri ({$w['args'][0]})");
                         $thisWorker->bury($job, $w['args'][0]);
                     } else {
+                        $this->log("Finish Job, Id ($h) buried");
                         $thisWorker->bury($job);
                     }
                     break;
                 case 'release':
                     if (isset($w['args']) && count($w['args']) == 1) {
+                        $this->log("Finish Job, Id ($h) released pri ({$w['args'][0]})");
                         $thisWorker->release($job, $w['args'][0]);
                     } else if (!isset($w['args'])) {
+                        $this->log("Finish Job, Id ($h) released");
                         $thisWorker->release($job);
                     } else {
+                        $this->log("Finish Job, Id ($h) released pri ({$w['args'][0]}) delay ({$w['args'][1]})");
                         $thisWorker->release($job, $w['args'][0], $w['args'][1]);
                     }
                     break;
                 case 'delete':
+                    $this->log("Finish Job, Id ($h) Deleted");
                     $thisWorker->delete($job);
                     break;
             }
         } else {
+            $this->log("Finish Job, Id ($h) Deleted");
             $thisWorker->delete($job);
         }
 

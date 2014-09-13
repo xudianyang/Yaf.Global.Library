@@ -1,5 +1,5 @@
 <?php
-
+namespace General\Bin;
 declare(ticks = 1);
 
 error_reporting(E_ALL | E_STRICT);
@@ -181,10 +181,14 @@ abstract class WorkerManager {
     protected $prefix = "";
 
     /**
+     * @var \SplClassLoader Class Auto Load
+     */
+    protected $loader;
+    /**
      * Creates the manager and gets things going
      *
      */
-    public function __construct() {
+    public function __construct(\SplClassLoader $loader) {
 
         if(!function_exists("posix_kill")){
             $this->show_help("The function posix_kill was not found. Please ensure POSIX functions are installed");
@@ -194,6 +198,7 @@ abstract class WorkerManager {
             $this->show_help("The function pcntl_fork was not found. Please ensure Process Control functions are installed");
         }
 
+        $this->loader = $loader;
         $this->pid = getmypid();
 
     }

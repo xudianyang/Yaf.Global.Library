@@ -28,8 +28,42 @@ PARAMS="-p Worker -c ${CONFIGDIR}/beanstalk-config.ini -vvvv"
 
 RETVAL=0
 
+base=${0##*/}
+wait_for_pid () {
+    try=0
+    if [ "$1" == "created" ]; then
+        echo -n "Starting ${base}"
+    fi
+
+    if [ "$1" == "removed" ]; then
+        echo -n "Stopping ${base}"
+    fi
+
+    while test $try -lt 60 ; do
+
+        case "$1" in
+            'created')
+            if [ -f "$2" ] ; then
+                try=''
+                break
+            fi
+            ;;
+
+            'removed')
+            if [ ! -f "$2" ] ; then
+                try=''
+                break
+            fi
+            ;;
+        esac
+
+        try=`expr $try + 1`
+        sleep 1
+
+    done
+}
+
 start() {
-        echo -n $"Starting beanstalk-manager: "
         if ! test -d ${PIDDIR}
         then
           mkdir ${PIDDIR}
@@ -43,15 +77,18 @@ start() {
             -d \
             $PARAMS
         RETVAL=$?
-        echo
+
+        wait_for_pid created $PIDFILE
+        echo $" done."
         return $RETVAL
 }
 
 stop() {
-        echo -n $"Stopping beanstalk-manager: "
         killproc -p $PIDFILE -TERM $DAEMON
         RETVAL=$?
-        echo
+        wait_for_pid removed $PIDFILE
+        echo $" done."
+        return $RETVAL
 }
 
 # See how we were called.
