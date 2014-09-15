@@ -120,7 +120,14 @@ class YarClient extends AbstractDriver
         }
 
         $this->_app = null;
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+
+        if ($result['errno']) {
+            $result['errno'] = hexdec($result['errno']);
+            throw new Exception\RuntimeException($result['message'], $result['errno']);
+        } else {
+            return $result['data'];
+        }
     }
 
     /**

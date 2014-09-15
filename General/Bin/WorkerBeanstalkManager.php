@@ -6,7 +6,7 @@ use General\Pheanstalk\Pheanstalk;
 class WorkerBeanstalkManager extends WorkerManager {
 
     /**
-     * Starts a worker for the PECL library
+     * Starts a worker for beanstalkd
      *
      * @param   array   $worker_list    List of worker functions to add
      * @param   array   $timeouts       list of worker timeouts to pass to server
@@ -16,7 +16,7 @@ class WorkerBeanstalkManager extends WorkerManager {
     protected function start_lib_worker($worker_list, $timeouts = array()) {
         $host = strtok($this->servers[0], ':');
         $thisWorker = new Pheanstalk($host, strtok(':'), 5);
-        foreach($worker_list as $w){
+        foreach ($worker_list as $w) {
             $timeout = (isset($timeouts[$w]) ? $timeouts[$w] : null);
             if (!is_null($timeouts)) {
                 $this->log("Reserve With Timeout $w ; timeout: " . $timeout, WorkerManager::LOG_LEVEL_WORKER_INFO);
@@ -24,6 +24,7 @@ class WorkerBeanstalkManager extends WorkerManager {
             $this->log("Watching Tube $w", WorkerManager::LOG_LEVEL_WORKER_INFO);
             $thisWorker->watch($w);
         }
+        $thisWorker->ignore('default');
 
         $start = time();
 

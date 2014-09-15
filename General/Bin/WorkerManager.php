@@ -345,7 +345,7 @@ abstract class WorkerManager {
      *   <li><b>max_worker_lifetime:</b> Maximum number of seconds for a worker to live.</li>
      *   <li><b>pid_file:</b> File to write process ID to.</li>
      *   <li><b>prefix:</b> Job Class prefix to use.</li>
-     *   <li><b>timeout:</b> Maximum number of seconds germand server should wait for a worker to complete work before timing out and reissuing work to another worker.</li>
+     *   <li><b>timeout:</b> Maximum number of seconds server should wait for a worker to complete work before timing out and reissuing work to another worker.</li>
      *   <li><b>worker_dir:</b> Directory where workers are located, defaults to ./workers.  If you are using PECL, you can provide multiple directories separated by comma.</li>
      *   <li><b>verbose:</b> Set the log verbosity.  See the LOG_LEVEL_* constants.</li>
      * </ul>
@@ -562,7 +562,7 @@ abstract class WorkerManager {
                 $this->servers = $this->config['host'];
             }
         } else {
-            $this->servers = array("127.0.0.1:4730");
+            $this->show_help("Connect to HOST and PORT Must Set, Use -h Option");
         }
 
         if (!empty($this->config['include']) && $this->config['include'] != "*") {
@@ -1174,7 +1174,7 @@ abstract class WorkerManager {
         echo "  -c CONFIG      Worker configuration file\n";
         echo "  -d             Daemon, detach and run in the background\n";
         echo "  -D NUMBER      Start NUMBER workers that do all jobs\n";
-        echo "  -h HOST[:PORT] Connect to HOST and optional PORT\n";
+        echo "  -h HOST:PORT   Connect to HOST and PORT\n";
         echo "  -H             Shows this help\n";
         echo "  -l LOG_FILE    Log output to LOG_FILE or use keyword 'syslog' for syslog support\n";
         echo "  -p PREFIX      Optional prefix for functions/classes of PECL workers. PEAR requires a constant be defined in code.\n";
