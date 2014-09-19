@@ -1,5 +1,6 @@
 <?php
 namespace General\Bin;
+use \Yaf\Loader;
 declare(ticks = 1);
 
 error_reporting(E_ALL | E_STRICT);
@@ -181,14 +182,14 @@ abstract class WorkerManager {
     protected $prefix = "";
 
     /**
-     * @var \SplClassLoader Class Auto Load
+     * @var Loader Class Auto Load
      */
     protected $loader;
     /**
      * Creates the manager and gets things going
      *
      */
-    public function __construct(\SplClassLoader $loader) {
+    public function __construct(Loader $loader) {
 
         if(!function_exists("posix_kill")){
             $this->show_help("The function posix_kill was not found. Please ensure POSIX functions are installed");
