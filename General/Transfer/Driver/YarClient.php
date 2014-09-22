@@ -69,15 +69,14 @@ class YarClient extends AbstractDriver
     protected function init()
     {
         // 判断远程调用列表，返回URL
-        $allows = $this->_allows;
-        $names =  explode(',',$allows['name']);
-        $urls = explode(',', $allows['url']);
+        $names = array_keys($this->_allows);
+        $urls  = array_values($this->_allows);
 
         // 本地调用与远程调用，本地调用、远程调用验证Token（验证机制相同）todo 远程调用验证机制
         if (empty($this->_app) || ucfirst($this->_app) == APP_NAME) {
             $url = APP_URL.$this->_entry;
-        } elseif (in_array(ucfirst($this->_app), $names)) {
-            $url = $urls[array_search(ucfirst($this->_app), $names)].$this->_entry;
+        } elseif (in_array(strtolower($this->_app), $names)) {
+            $url = $urls[array_search(strtolower($this->_app), $names)].$this->_entry;
             $this->_params['yarsource'] = APP_NAME;
         } else {
             throw new Exception\RuntimeException("Yar Client app is invalid");
