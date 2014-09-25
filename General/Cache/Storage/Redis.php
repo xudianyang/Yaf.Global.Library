@@ -243,6 +243,11 @@ class Redis extends AbstractStorage
         }
     }
 
+    /**
+     * @param $name
+     * @param $params
+     * @return mixed
+     */
     public function __call($name, $params)
     {
         if ($this->resource instanceof RedisSource) {
@@ -251,7 +256,7 @@ class Redis extends AbstractStorage
             $redis = $this->getResource();
         }
 
-        call_user_func_array(array($redis, $name), $params);
-        return $redis;
+        $result = call_user_func_array(array($redis, $name), $params);
+        return $result;
     }
 }
