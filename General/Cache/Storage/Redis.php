@@ -256,7 +256,9 @@ class Redis extends AbstractStorage
             $redis = $this->getResource();
         }
 
-        $params[0] = $this->getNamespace() . $params[0];
+        if (isset($params[0])) {
+            $params[0] = $this->getNamespace() . $params[0];
+        }
 
         $result = call_user_func_array(array($redis, $name), $params);
         return $result;
