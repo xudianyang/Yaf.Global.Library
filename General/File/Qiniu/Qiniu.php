@@ -140,8 +140,10 @@ class Qiniu implements StorageInterface
         }
     }
 
-    public function getDomain($index = 0)
+    public function getDomain()
     {
+        $index = array_rand($this->domains);
+
         return $this->domains[$index];
     }
 }
