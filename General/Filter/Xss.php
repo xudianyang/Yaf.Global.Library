@@ -72,11 +72,11 @@ class Xss {
     private function normalReplace(){
         $this->_input = str_replace(array('&amp;', '&lt;', '&gt;'), array('&amp;amp;', '&amp;lt;', '&amp;gt;'), $this->_input);
         if($this->_allowHttpValue == false){
-            $this->_input = str_replace(array('&', '%', 'script', 'localhost'), array('', '', '', '', ''), $this->_input);
+            $this->_input = str_replace(array('%', 'script', 'localhost'), array('', '', '', '', ''), $this->_input);
         }
         else
         {
-            $this->_input = str_replace(array('&', '%', 'script', 'localhost','../'), array('', '', '', '',''), $this->_input);
+            $this->_input = str_replace(array('%', 'script', 'localhost','../'), array('', '', '', '',''), $this->_input);
         }
         foreach($this->_normalPatterns as $pattern => $replacement){
             $this->_input = str_replace($pattern,$replacement,$this->_input);
