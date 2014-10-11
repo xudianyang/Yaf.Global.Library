@@ -247,7 +247,7 @@ class AES extends Rijndael {
         }
 
         if (CRYPT_AES_MODE == CRYPT_AES_MODE_INTERNAL) {
-            parent::Rijndael($this->mode);
+            parent::__construct($this->mode);
         }
 
     }
