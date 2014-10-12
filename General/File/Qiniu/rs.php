@@ -32,7 +32,8 @@ class Qiniu_RS_GetPolicy
 
 function Qiniu_RS_MakeBaseUrl($domain, $key) // => $baseUrl
 {
-	$keyEsc = str_replace("%2F", "/", rawurlencode($key));
+	//$keyEsc = str_replace("%2F", "/", rawurlencode($key));
+    $keyEsc = $key;
 	return "http://$domain/$keyEsc";
 }
 
