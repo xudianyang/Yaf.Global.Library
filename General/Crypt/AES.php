@@ -7,7 +7,6 @@
 
 namespace General\Crypt;
 
-use General\Crypt\Rijndael;
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**

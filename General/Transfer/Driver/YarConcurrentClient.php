@@ -7,7 +7,6 @@
 
 namespace General\Transfer\Driver;
 
-use Yaf\Application;
 use Yar_Concurrent_Client;
 use General\Crypt\AES;
 use General\Transfer\Exception;
@@ -67,8 +66,7 @@ class YarConcurrentClient extends AbstractDriver
     /**
      * 构造方法
      *
-     * @param string | null $package
-     * @param string | null $entry
+     * @param array $options
      */
     public function __construct($options = null)
     {
@@ -84,14 +82,15 @@ class YarConcurrentClient extends AbstractDriver
     {
         // 判断远程调用列表，返回URL
         $allows = $this->_allows;
-        $names =  explode(',',$allows['name']);
-        $urls = explode(',', $allows['url']);
+        $names = array_keys($this->_allows);
+        $urls  = array_values($this->_allows);
 
         // 本地调用与远程调用，本地调用、远程调用验证Token（验证机制相同）todo 远程调用验证机制
         if (empty($this->_app) || ucfirst($this->_app) == APP_NAME) {
             $url = APP_URL.$this->_entry;
-        } elseif (in_array(ucfirst($this->_app), $names)) {
-            $url = $urls[array_search(ucfirst($this->_app), $names)].$this->_entry;
+        } elseif (in_array(strtolower($this->_app), $names)) {
+            $url = $urls[array_search(strtolower($this->_app), $names)].$this->_entry;
+            $this->_params['yarsource'] = APP_NAME;
         } else {
             throw new Exception\RuntimeException("Yar Client app is invalid");
         }
@@ -102,15 +101,15 @@ class YarConcurrentClient extends AbstractDriver
     /**
      * 添加远程接口调用
      *
-     * @param array $result 接口返回的结果（按引用传值）
      * @param string $router 路由参数
      * @param array $params 接口请求的参数
+     * @param array $result 接口返回的结果（按引用传值）
      * @param array $options Yar可选项
      * @param string $method 请求的接口方法名
      *
      * @return void
      */
-    public function add(&$result, $router, $params = array(), $options = array(), $method = 'api')
+    public function add($router, $params = array(), &$result = null, $options = array(), $method = 'api')
     {
         $this->setOptions($router);
 
@@ -138,8 +137,10 @@ class YarConcurrentClient extends AbstractDriver
         $sequence = Yar_Concurrent_Client::call($this->getRouterUrl(), $method, $this->params[$key],
             array($this, 'callback'), array($this, 'errorCallback'), (array)$options
         );
-        $this->sequences[$sequence] = & $result;
 
+        if (!is_null($result)) {
+            $this->sequences[$sequence] = & $result;
+        }
         $this->_app = null;
     }
 
@@ -153,7 +154,20 @@ class YarConcurrentClient extends AbstractDriver
      */
     public function callBack($result, $callInfo)
     {
-        $this->sequences[$callInfo['sequence']] = json_decode($result, true);
+        if (isset($this->sequences[$callInfo['sequence']])) {
+            if (!$result) {
+                return null;
+            }
+
+            $result = json_decode($result, true);
+
+            if ($result['errno']) {
+                $result['errno'] = hexdec($result['errno']);
+                throw new Exception\RuntimeException($result['message'], $result['errno']);
+            }
+
+            $this->sequences[$callInfo['sequence']] = $result['data'];
+        }
     }
 
     /**
