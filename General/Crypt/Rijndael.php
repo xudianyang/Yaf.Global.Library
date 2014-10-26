@@ -1592,7 +1592,7 @@ class Rijndael {
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
 
-        $lambda_functions =& Crypt_Rijndael::get_lambda_functions();
+        $lambda_functions =& Rijndael::get_lambda_functions();
         $block_size = $this->block_size;
         $mode = $this->mode;
 
