@@ -13,6 +13,8 @@ class Client
      * @var array 默认设置
      */
     protected static $defaultOptions = array(
+        'proxy'     => '',
+        'proxyUserPwd' => '',
         'userAgent' => 'Yaf.app Robot 1.0',     // 请求时的 user agent
         'connectionTimeout' => 10,          // 发起连接前等待超时时间
         'timeout' => 30,                    // 请求执行超时时间
@@ -99,6 +101,13 @@ class Client
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->options['sslVerifypeer']);
         curl_setopt($curl, CURLOPT_HEADER, false);
+        if ($this->options['proxy']) {
+            curl_setopt($curl, CURLOPT_PROXY, $this->options['proxy']);
+        }
+
+        if ($this->options['proxyUserPwd']) {
+            curl_setopt($curl, CURLOPT_PROXYUSERPWD, $this->options['proxyUserPwd']);
+        }
 
         $headers = (array)$extra_headers;
         switch ($method) {
