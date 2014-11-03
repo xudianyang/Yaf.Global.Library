@@ -222,6 +222,19 @@ class YarConcurrentClient extends AbstractDriver
 
         Yar_Concurrent_Client::loop($requestCallBack, $requestErrorCallback);
 
+        $this->reset();
+    }
+
+    /**
+     * 重置接口调用栈
+     *
+     * @param void
+     * @return void
+     */
+    public function reset()
+    {
+        Yar_Concurrent_Client::reset();
+        $this->sequences = array();
         $this->params = array();
     }
 
