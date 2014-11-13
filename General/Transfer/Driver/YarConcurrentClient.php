@@ -105,11 +105,12 @@ class YarConcurrentClient extends AbstractDriver
      * @param array $params 接口请求的参数
      * @param array $result 接口返回的结果（按引用传值）
      * @param array $options Yar可选项
+     * @param callable $errorCallBack 错误回调
      * @param string $method 请求的接口方法名
      *
      * @return void
      */
-    public function add($router, $params = array(), &$result = null, $options = array(), $method = 'api')
+    public function add($router, $params = array(), &$result = null, $options = array(), callable $errorCallBack = null, $method = 'api')
     {
         $this->setOptions($router);
 
@@ -134,8 +135,14 @@ class YarConcurrentClient extends AbstractDriver
             $options[YAR_OPT_TIMEOUT] = 2000;
         }
 
+        if (!is_callable($errorCallBack)) {
+            $callback = array($this, 'errorCallback');
+        } else {
+            $callback = $errorCallBack;
+        }
+
         $sequence = Yar_Concurrent_Client::call($this->getRouterUrl(), $method, $this->params[$key],
-            array($this, 'callback'), array($this, 'errorCallback'), (array)$options
+            array($this, 'callback'), $callback, (array)$options
         );
 
         if (!is_null($result)) {
@@ -149,7 +156,7 @@ class YarConcurrentClient extends AbstractDriver
      *
      * @param string $result 接口返回的数据
      * @param array $callInfo 接口调用的相关信息
-     *
+     * @throws Exception\RuntimeException
      * @return void
      */
     public function callBack($result, $callInfo)
