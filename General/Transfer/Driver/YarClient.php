@@ -89,6 +89,7 @@ class YarClient extends AbstractDriver
 
         $this->_client = new Yar_Client($url);
         $this->_client->SetOpt(YAR_OPT_CONNECT_TIMEOUT, 2000);
+        $this->_client->SetOpt(YAR_OPT_TIMEOUT, 20000);
         $this->_client->SetOpt(YAR_OPT_PACKAGER, $this->_package);
     }
 
