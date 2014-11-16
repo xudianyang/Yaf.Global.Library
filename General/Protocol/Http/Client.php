@@ -18,7 +18,9 @@ class Client
         'userAgent' => 'Yaf.app Robot 1.0',     // 请求时的 user agent
         'connectionTimeout' => 10,          // 发起连接前等待超时时间
         'timeout' => 30,                    // 请求执行超时时间
-        'sslVerifypeer' => false            // 是否从服务端进行验证
+        'sslVerifypeer' => false,            // 是否从服务端进行验证
+        'referer' => '',                     // 设置referer
+        'cookie'  => '',
     );
 
     protected $options;
@@ -101,6 +103,13 @@ class Client
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->options['sslVerifypeer']);
         curl_setopt($curl, CURLOPT_HEADER, false);
+        if ($this->options['referer']) {
+            curl_setopt($curl, CURLOPT_REFERER, $this->options['referer']);
+        }
+
+        if ($this->options['cookie']) {
+            curl_setopt($curl, CURLOPT_COOKIE, $this->options['cookie']);
+        }
         if ($this->options['proxy']) {
             curl_setopt($curl, CURLOPT_PROXY, $this->options['proxy']);
         }
