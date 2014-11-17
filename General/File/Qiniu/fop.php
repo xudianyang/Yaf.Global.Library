@@ -29,7 +29,11 @@ class Qiniu_ImageView {
     		$ops[] = 'format/' . $this->Format;
     	}
 
-    	return $url . "?imageView2/" . implode('/', $ops);
+        if (strpos($url, "?imageView2") !== false) {
+            return $url . "|imageView2/" . implode('/', $ops);
+        } else {
+    	    return $url . "?imageView2/" . implode('/', $ops);
+        }
     }
 }
 
