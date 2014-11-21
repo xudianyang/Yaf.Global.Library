@@ -90,7 +90,7 @@ class Connection
 
         if (isset(self::$_errorResponses[$responseName])) {
             $exception = sprintf(
-                'General\Pheanstalk\Exception\Server%sException',
+                __NAMESPACE__ . '\Exception\Server%sException',
                 self::$_errorResponses[$responseName]
             );
 
