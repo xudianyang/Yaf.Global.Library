@@ -268,7 +268,21 @@ class Connection implements ConnectionInterface
      */
     public function isConnected()
     {
-        return ($this->resource instanceof \PDO);
+        if ($this->resource instanceof \PDO) {
+            // 检测连接是否有效
+            try {
+                $this->resource->query("select now()");
+            } catch(\PDOException $e) {
+                if (strpos(strtolower($e->getMessage()), "gone away") !== false) {
+                    $this->resource = null;
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

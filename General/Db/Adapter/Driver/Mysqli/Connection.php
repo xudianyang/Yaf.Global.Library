@@ -199,7 +199,17 @@ class Connection implements ConnectionInterface
      */
     public function isConnected()
     {
-        return ($this->resource instanceof \mysqli);
+        if ($this->resource instanceof \mysqli) {
+            // 检测连接是否有效
+            if (!$this->resource->ping()) {
+                $this->disconnect();
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -212,7 +222,8 @@ class Connection implements ConnectionInterface
         if ($this->resource instanceof \mysqli) {
             $this->resource->close();
         }
-        unset($this->resource);
+
+        $this->resource = null;
         return $this;
     }
 

@@ -350,7 +350,14 @@ class Result implements ResultInterface
     {
         $data = array();
 
-        $result = $this->resource->get_result();
+        if ($this->resource instanceof \mysqli_result) {
+            $result = $this->resource;
+        } else if ($this->resource instanceof \mysqli_stmt) {
+            $result = $this->resource->get_result();
+        } else if ($this->resource instanceof \mysqli) {
+            $result = $this->resource->store_result();
+        }
+
         while ($row = $result->fetch_array(\MYSQLI_ASSOC))
         {
             $data[] = $row;
