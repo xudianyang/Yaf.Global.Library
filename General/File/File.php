@@ -30,7 +30,7 @@ class File implements StorageInterface
         $options = array(
             'http'=>array(
                 'method'    => 'GET',
-                'timeout'   => 60,
+                'timeout'   => 20,
             )
         );
 
