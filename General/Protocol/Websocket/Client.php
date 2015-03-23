@@ -53,6 +53,7 @@ class Client
         $this->path   = $path;
         $this->origin = $origin;
         $this->key    = $this->generateToken(self::TOKEN_LENGHT);
+        $this->socket = new \swoole_client(SWOOLE_SOCK_TCP | SWOOLE_KEEP);
     }
 
     /**
@@ -72,7 +73,6 @@ class Client
      */
     public function connect()
     {
-        $this->socket = new \swoole_client(SWOOLE_SOCK_TCP);
         if (!$this->socket->connect($this->host, $this->port)) {
             return false;
         }
