@@ -53,7 +53,6 @@ class Client
         $this->path   = $path;
         $this->origin = $origin;
         $this->key    = $this->generateToken(self::TOKEN_LENGHT);
-        $this->socket = new \swoole_client(SWOOLE_SOCK_TCP | SWOOLE_KEEP);
     }
 
     /**
@@ -73,6 +72,7 @@ class Client
      */
     public function connect()
     {
+        $this->socket = new \swoole_client(SWOOLE_SOCK_TCP);
         if (!$this->socket->connect($this->host, $this->port)) {
             return false;
         }
@@ -102,6 +102,7 @@ class Client
         $this->connected = false;
         if ($this->socket instanceof \swoole_client) {
             $this->socket->close();
+            unset($this->socket);
         }
     }
 
@@ -115,7 +116,7 @@ class Client
     {
         $data = $this->socket->recv();
         if ($data === false) {
-            throw new \Exception(socket_strerror($this->socket->errCode), $this->socket->errCode);
+            return false;
         }
 
         $this->buffer .= $data;
@@ -138,7 +139,7 @@ class Client
      */
     public function send($data, $type = 'text', $masked = true)
     {
-        return $this->socket->send($this->hybi10Encode($data, $type, $masked));
+        return @$this->socket->send($this->hybi10Encode($data, $type, $masked));
     }
 
     /**
