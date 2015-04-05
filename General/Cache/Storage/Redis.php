@@ -110,7 +110,7 @@ class Redis extends AbstractStorage
         }
         if (!$this->resource instanceof RedisSource) {
             $resource = new RedisSource;
-            if (!$resource->connect($this->resource['host'], $this->resource['port'])) {
+            if (!$resource->pconnect($this->resource['host'], $this->resource['port'], 1, $this->resource['host'] . $this->resource['port'], 100)) {
                 throw new Exception\RuntimeException(sprintf(
                     'Cannot connect to redis server on %s:%d',
                     $this->resource['host'], $this->resource['port']

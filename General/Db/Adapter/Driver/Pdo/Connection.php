@@ -250,15 +250,30 @@ class Connection implements ConnectionInterface
             );
         }
 
-        try {
-            $this->resource = new \PDO($dsn, $username, $password, $options);
-            $this->resource->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->driverName = strtolower($this->resource->getAttribute(\PDO::ATTR_DRIVER_NAME));
-        } catch (\PDOException $e) {
-            throw new Exception\RuntimeException('Connect Error: ' . $e->getMessage(), $e->getCode(), $e);
-        }
+        $retryConnectTimes = 3;
+        $connectTimes      = 1;
+        while ($retryConnectTimes >= $connectTimes) {
+            try {
+                $this->resource = new \PDO($dsn, $username, $password, $options);
+                $this->resource->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->resource->setAttribute(\PDO::ATTR_TIMEOUT, 10);
+                $this->driverName = strtolower($this->resource->getAttribute(\PDO::ATTR_DRIVER_NAME));
+                return $this;
+            } catch (\PDOException $e) {
+                $message = 'Database Connect Error: ' . $e->getMessage() . "\n" .
+                    'driver: ' . $pdoDriver . "\n" .
+                    'host: '   . $hostname . "\n" .
+                    'port: '   . $port . "\n" .
+                    'retryTimes: ' . $connectTimes . "\n";
+                error_log($message);
 
-        return $this;
+                if ($connectTimes == $retryConnectTimes) {
+                    throw new Exception\RuntimeException('Connect Error: ' . $e->getMessage(), $e->getCode(), $e);
+                }
+            }
+
+            $connectTimes++;
+        }
     }
 
     /**
