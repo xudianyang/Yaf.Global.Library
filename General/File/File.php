@@ -30,12 +30,14 @@ class File implements StorageInterface
         $options = array(
             'http'=>array(
                 'method'    => 'GET',
-                'timeout'   => 20,
+                'timeout'   => 3,
             )
         );
 
+        $i = 0;
         $context = stream_context_create($options);
-        return file_get_contents($filename, false, $context);
+        while (($data = file_get_contents($filename, false, $context)) === false && $i < 3) $i++;
+        return $data;
     }
 
     public function write($filename, $content) {
