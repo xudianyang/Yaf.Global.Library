@@ -76,6 +76,15 @@ abstract class CachePool
 
     /**
      * @param string $name
+     * @return bool
+     */
+    public static function remove($name) {
+        unset(self::$pool[$name]);
+        return true;
+    }
+
+    /**
+     * @param string $name
      * @return null|Storage\StorageInterface
      */
     public static function get($name = self::DEFAULT_STORAGE)
