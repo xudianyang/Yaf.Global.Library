@@ -65,6 +65,35 @@ class SmtpPluginManager
     protected $retrieveFromPeeringManagerFirst = false;
 
     /**
+     * Options to use when creating an instance
+     *
+     * @var mixed
+     */
+    protected $creationOptions = null;
+
+    /**
+     * Registered services and cached values
+     *
+     * @var array
+     */
+    protected $instances = array();
+
+    /**
+     * @var string|callable|\Closure|FactoryInterface[]
+     */
+    protected $factories = array();
+
+    /**
+     * @var array
+     */
+    protected $aliases = array();
+
+    /**
+     * @var array
+     */
+    protected $shared = array();
+
+    /**
      * Validate the plugin
      *
      * Checks that the extension loaded is an instance of Smtp.
@@ -217,6 +246,7 @@ class SmtpPluginManager
         $this->creationOptions = $options;
 
         try {
+            // instance the connection class
             $instance = $this->getInstance($name, $usePeeringServiceManagers);
         } catch (Exception\ServiceNotFoundException $exception) {
             $this->tryThrowingServiceLocatorUsageException($name, $isAutoInvokable, $exception);
@@ -563,4 +593,33 @@ class SmtpPluginManager
         }
         return $this;
     }
+
+    /**
+     * Attempt to retrieve an instance via a peering manager
+     *
+     * @param  string $name
+     * @return mixed
+     */
+    protected function retrieveFromPeeringManager($name)
+    {
+        if (null !== ($service = $this->loopPeeringServiceManagers($name))) {
+            return $service;
+        }
+
+        $name = $this->canonicalizeName($name);
+
+        if ($this->hasAlias($name)) {
+            do {
+                $name = $this->aliases[$name];
+            } while ($this->hasAlias($name));
+        }
+
+        if (null !== ($service = $this->loopPeeringServiceManagers($name))) {
+            return $service;
+        }
+
+        return;
+    }
+
+
 }
