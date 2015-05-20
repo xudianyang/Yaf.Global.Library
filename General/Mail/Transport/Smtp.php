@@ -319,8 +319,22 @@ class Smtp implements TransportInterface
         $config           = $options->getConnectionConfig();
         $config['host']   = $options->getHost();
         $config['port']   = $options->getPort();
-        $connection       = $this->plugin($options->getConnectionClass(), $config);
-        $this->connection = $connection;
+//        $connection       = $this->plugin($options->getConnectionClass(), $config);
+        // Get instance for different auth
+        switch($options->getConnectionClass())
+        {
+            case 'smtp':
+                $this->connection = new  \General\Mail\Protocol\Smtp($config);
+                break;
+            case 'plain':
+            case 'login':
+            case 'crammd5':
+                $class = "\\General\\Mail\\Protocol\\Smtp\\Auth\\" . ucfirst($options->getConnectionClass());
+                $this->connection = new $class($config);
+                break;
+            default:
+                $this->connection = new  \General\Mail\Protocol\Smtp($config);
+        }
 
         return $this->connect();
     }
