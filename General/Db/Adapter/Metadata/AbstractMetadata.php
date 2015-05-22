@@ -45,7 +45,16 @@ abstract class AbstractMetadata implements MetadataInterface
     public function __construct(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
-        $this->cacher = CachePool::get('MetadataCacher');
+        try {
+            $this->cacher = CachePool::get('MetadataCacher');
+            if ($this->cacher instanceof \General\Cache\Storage\StorageInterface) {
+                $this->cacher->getResource();
+            }
+        } catch (\Exception $e) {
+            $this->cacher = null;
+            $message = 'MetaDataCacher Connect Error: ' . $e->getMessage() . "\n";
+            error_log($message);
+        }
         $this->defaultSchema = ($adapter->getDriver()->getConnection()->getCurrentSchema()) ? : self::DEFAULT_SCHEMA;
     }
 
