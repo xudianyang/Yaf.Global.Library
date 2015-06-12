@@ -99,10 +99,12 @@ class Client
      */
     public function disconnect()
     {
-        $this->connected = false;
-        if ($this->socket instanceof \swoole_client) {
-            $this->socket->close();
-            unset($this->socket);
+        if ($this->connected) {
+            $this->connected = false;
+            if ($this->socket instanceof \swoole_client) {
+                $this->socket->close();
+                unset($this->socket);
+            }
         }
     }
 
