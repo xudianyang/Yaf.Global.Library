@@ -145,6 +145,16 @@ class Client
     }
 
     /**
+     * 返回错误码
+     *
+     * @return int
+     */
+    public function errCode()
+    {
+        return $this->socket->errCode;
+    }
+
+    /**
      * 解析响应数据
      *
      * @param string $response 消息帧
